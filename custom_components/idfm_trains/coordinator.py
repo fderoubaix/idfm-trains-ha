@@ -157,11 +157,12 @@ class IdfmTrainsCoordinator(DataUpdateCoordinator):
         self._stop_area_id = entry.data[CONF_STOP_AREA_ID]
 
         # Options (may be updated without restart)
+        # ⚠️  Ne pas utiliser self._update_interval : nom réservé par DataUpdateCoordinator
         opts = entry.options
-        self._train_count: int = opts.get(CONF_TRAIN_COUNT, DEFAULT_TRAIN_COUNT)
+        self._train_count: int = int(opts.get(CONF_TRAIN_COUNT, DEFAULT_TRAIN_COUNT))
         self._lines_filter: list[str] = opts.get(CONF_LINES_FILTER, [])
-        self._update_interval: int = opts.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
-        self._outside_interval: int = opts.get(CONF_OUTSIDE_INTERVAL, DEFAULT_OUTSIDE_INTERVAL)
+        self._active_interval_min: int = int(opts.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL))
+        self._inactive_interval_min: int = int(opts.get(CONF_OUTSIDE_INTERVAL, DEFAULT_OUTSIDE_INTERVAL))
         self._time_start: str = opts.get(CONF_TIME_START, DEFAULT_TIME_START)
         self._time_end: str = opts.get(CONF_TIME_END, DEFAULT_TIME_END)
 
@@ -169,43 +170,45 @@ class IdfmTrainsCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name=f"{DOMAIN}_{self._stop_area_id}",
-            update_interval=self._get_update_interval(),
+            update_interval=self._compute_interval(),
         )
 
-    def _get_update_interval(self) -> timedelta:
-        """Return the appropriate update interval based on current time."""
+    def _compute_interval(self) -> timedelta:
+        """Calcule l'intervalle adapté selon l'heure courante."""
+        from datetime import time as dtime
         now = dt_util.now().time()
         try:
             h_start, m_start = map(int, self._time_start.split(":"))
-            h_end, m_end = map(int, self._time_end.split(":"))
+            h_end,   m_end   = map(int, self._time_end.split(":"))
         except (ValueError, AttributeError):
-            return timedelta(minutes=self._update_interval)
+            return timedelta(minutes=self._active_interval_min)
 
-        from datetime import time as dtime
-        t_start = dtime(h_start, m_start)
-        t_end = dtime(h_end, m_end)
-        # Activate 30 min before window start
-        t_pre = dtime(max(0, h_start - 0), max(0, m_start - 30)) if m_start >= 30 else dtime(max(0, h_start - 1), (m_start + 30) % 60)
+        t_end   = dtime(h_end, m_end)
+        # Activation 30 min avant le début de la plage
+        pre_min = m_start - 30
+        pre_h   = h_start if pre_min >= 0 else max(0, h_start - 1)
+        pre_min = pre_min if pre_min >= 0 else pre_min + 60
+        t_pre   = dtime(pre_h, pre_min)
 
         if t_pre <= now <= t_end:
-            return timedelta(minutes=self._update_interval)
-        return timedelta(minutes=self._outside_interval)
+            return timedelta(minutes=self._active_interval_min)
+        return timedelta(minutes=self._inactive_interval_min)
 
     def update_options(self) -> None:
-        """Refresh options from the config entry (called after options update)."""
+        """Recharge les options depuis la config entry (appelé après une mise à jour des options)."""
         opts = self.entry.options
-        self._train_count = opts.get(CONF_TRAIN_COUNT, DEFAULT_TRAIN_COUNT)
-        self._lines_filter = opts.get(CONF_LINES_FILTER, [])
-        self._update_interval = opts.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
-        self._outside_interval = opts.get(CONF_OUTSIDE_INTERVAL, DEFAULT_OUTSIDE_INTERVAL)
-        self._time_start = opts.get(CONF_TIME_START, DEFAULT_TIME_START)
-        self._time_end = opts.get(CONF_TIME_END, DEFAULT_TIME_END)
-        self.update_interval = self._get_update_interval()
+        self._train_count          = int(opts.get(CONF_TRAIN_COUNT, DEFAULT_TRAIN_COUNT))
+        self._lines_filter         = opts.get(CONF_LINES_FILTER, [])
+        self._active_interval_min  = int(opts.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL))
+        self._inactive_interval_min = int(opts.get(CONF_OUTSIDE_INTERVAL, DEFAULT_OUTSIDE_INTERVAL))
+        self._time_start           = opts.get(CONF_TIME_START, DEFAULT_TIME_START)
+        self._time_end             = opts.get(CONF_TIME_END, DEFAULT_TIME_END)
+        self.update_interval       = self._compute_interval()
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from PRIM API and parse it."""
-        # Adjust interval dynamically each update
-        self.update_interval = self._get_update_interval()
+        # Ajuste l'intervalle dynamiquement à chaque appel
+        self.update_interval = self._compute_interval()
 
         monitoring_ref = f"STIF:StopArea:SP:{self._stop_area_id}:"
         params = {"MonitoringRef": monitoring_ref}
