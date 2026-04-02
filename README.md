@@ -1,7 +1,7 @@
 # 🚉 IDFM Trains – Intégration Home Assistant
 
 [![HACS Badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
-[![Validate](https://github.com/VOTRE_USERNAME/idfm-trains-ha/actions/workflows/validate.yml/badge.svg)](https://github.com/VOTRE_USERNAME/idfm-trains-ha/actions/workflows/validate.yml)
+[![Validate](https://github.com/fderoubaix/idfm-trains-ha/actions/workflows/validate.yml/badge.svg)](https://github.com/fderoubaix/idfm-trains-ha/actions/workflows/validate.yml)
 [![Home Assistant](https://img.shields.io/badge/Home--Assistant-2024.5+-blue?logo=home-assistant)](https://www.home-assistant.io/)
 [![Licence MIT](https://img.shields.io/badge/Licence-MIT-green)]()
 
@@ -29,7 +29,7 @@ Préconfigurée pour **Achères-Ville** (RER A + Ligne L Transilien), mais utili
 
 1. Dans Home Assistant, ouvrez **HACS → Intégrations**
 2. Cliquez sur le menu ⋮ → **Dépôts personnalisés**
-3. Ajoutez l'URL : `https://github.com/VOTRE_USERNAME/idfm-trains-ha`
+3. Ajoutez l'URL : `https://github.com/fderoubaix/idfm-trains-ha`
    Catégorie : **Integration**
 4. Cherchez **IDFM Trains** et installez
 5. **Redémarrez** Home Assistant
@@ -40,7 +40,7 @@ Préconfigurée pour **Achères-Ville** (RER A + Ligne L Transilien), mais utili
 
 ## 🔧 Installation manuelle
 
-1. Téléchargez la [dernière release](https://github.com/VOTRE_USERNAME/idfm-trains-ha/releases/latest) (`idfm_trains.zip`)
+1. Téléchargez la [dernière release](https://github.com/fderoubaix/idfm-trains-ha/releases/latest) (`idfm_trains.zip`)
 2. Décompressez et copiez le dossier `idfm_trains/` dans `config/custom_components/`
 3. **Redémarrez** Home Assistant
 

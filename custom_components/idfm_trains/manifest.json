@@ -3,11 +3,11 @@
   "name": "IDFM Trains (Île-de-France Mobilités)",
   "version": "1.0.0",
   "config_flow": true,
-  "documentation": "https://github.com/VOTRE_USERNAME/idfm-trains-ha",
-  "issue_tracker": "https://github.com/VOTRE_USERNAME/idfm-trains-ha/issues",
+  "documentation": "https://github.com/fderoubaix/idfm-trains-ha",
+  "issue_tracker": "https://github.com/fderoubaix/idfm-trains-ha/issues",
   "requirements": [],
   "dependencies": [],
-  "codeowners": ["@VOTRE_USERNAME"],
+  "codeowners": ["@fderoubaix"],
   "iot_class": "cloud_polling",
   "homeassistant": "2024.5.0"
 }
