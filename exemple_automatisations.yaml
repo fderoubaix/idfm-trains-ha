@@ -1,0 +1,149 @@
+# ============================================================
+# Exemples d'automatisations – IDFM Trains Achères-Ville
+# ============================================================
+
+# ── 1. Notification mobile : prochain RER A dans 15 min ─────
+automation:
+  - id: idfm_notif_rer_a_15min
+    alias: "IDFM – Alerte RER A dans 15 min"
+    description: >
+      Envoie une notification quand le prochain RER A part dans 15 minutes.
+    trigger:
+      - platform: template
+        value_template: >
+          {% set dep = states.sensor.idfm_acheres_ville_rer_a_train_1 %}
+          {% if dep.state not in ['unknown', 'unavailable'] %}
+            {% set minutes = ((dep.state | as_datetime) - now()).total_seconds() / 60 %}
+            {{ 14 <= minutes <= 15 }}
+          {% else %}
+            false
+          {% endif %}
+    condition:
+      - condition: time
+        after: "06:00:00"
+        before: "23:00:00"
+    action:
+      - service: notify.mobile_app_votre_telephone
+        data:
+          title: "🚉 RER A dans 15 min"
+          message: >
+            Prochain RER A vers
+            {{ state_attr('sensor.idfm_acheres_ville_rer_a_train_1', 'destination') }}
+            à {{ states('sensor.idfm_acheres_ville_rer_a_train_1') | as_timestamp | timestamp_custom('%H:%M') }}
+            {% if state_attr('sensor.idfm_acheres_ville_rer_a_train_1', 'retard_minutes') > 0 %}
+            (Retard : {{ state_attr('sensor.idfm_acheres_ville_rer_a_train_1', 'retard_minutes') }} min)
+            {% endif %}
+
+# ── 2. Notification si retard > 5 min ───────────────────────
+  - id: idfm_notif_retard_rer_a
+    alias: "IDFM – Alerte retard RER A"
+    description: >
+      Notifie si le prochain RER A a plus de 5 minutes de retard.
+    trigger:
+      - platform: template
+        value_template: >
+          {{ state_attr('sensor.idfm_acheres_ville_rer_a_train_1', 'retard_minutes') | int(0) > 5 }}
+        for:
+          minutes: 1
+    condition:
+      - condition: time
+        after: "06:00:00"
+        before: "23:00:00"
+    action:
+      - service: notify.mobile_app_votre_telephone
+        data:
+          title: "⚠️ Retard RER A"
+          message: >
+            RER A vers {{ state_attr('sensor.idfm_acheres_ville_rer_a_train_1', 'destination') }}
+            a {{ state_attr('sensor.idfm_acheres_ville_rer_a_train_1', 'retard_minutes') }} min de retard.
+
+# ── 3. Lumière verte/rouge selon le prochain départ ─────────
+  - id: idfm_lumiere_depart_bientot
+    alias: "IDFM – Lumière alerte départ imminent"
+    description: >
+      Passe une lumière en rouge si le train part dans moins de 5 min,
+      orange entre 5 et 10 min, verte sinon.
+    trigger:
+      - platform: time_pattern
+        minutes: "/1"
+    condition:
+      - condition: time
+        after: "06:00:00"
+        before: "23:00:00"
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.idfm_acheres_ville_rer_a_train_1
+            state: "unavailable"
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >
+                  {% set dep = states('sensor.idfm_acheres_ville_rer_a_train_1') %}
+                  {% if dep not in ['unknown', 'unavailable'] %}
+                    {{ ((dep | as_datetime) - now()).total_seconds() / 60 < 5 }}
+                  {% else %}
+                    false
+                  {% endif %}
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.votre_lampe
+                data:
+                  color_name: red
+                  brightness: 255
+          - conditions:
+              - condition: template
+                value_template: >
+                  {% set dep = states('sensor.idfm_acheres_ville_rer_a_train_1') %}
+                  {% if dep not in ['unknown', 'unavailable'] %}
+                    {% set m = ((dep | as_datetime) - now()).total_seconds() / 60 %}
+                    {{ 5 <= m <= 10 }}
+                  {% else %}
+                    false
+                  {% endif %}
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.votre_lampe
+                data:
+                  color_name: orange
+                  brightness: 200
+        default:
+          - service: light.turn_on
+            target:
+              entity_id: light.votre_lampe
+            data:
+              color_name: green
+              brightness: 150
+
+# ── 4. Annonce vocale le matin (Google Home / Alexa) ────────
+  - id: idfm_annonce_matinale
+    alias: "IDFM – Annonce matinale des trains"
+    description: >
+      Annonce les prochains trains à 7h00 en semaine.
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      - service: tts.google_translate_say
+        target:
+          entity_id: media_player.votre_google_home
+        data:
+          message: >
+            Bonjour ! Voici les prochains trains à Achères-Ville.
+            Prochain RER A à
+            {{ states('sensor.idfm_acheres_ville_rer_a_train_1') | as_timestamp | timestamp_custom('%H heures %M') }}
+            en direction de {{ state_attr('sensor.idfm_acheres_ville_rer_a_train_1', 'destination') }}.
+            Prochain train L à
+            {{ states('sensor.idfm_acheres_ville_ligne_l_train_1') | as_timestamp | timestamp_custom('%H heures %M') }}
+            en direction de {{ state_attr('sensor.idfm_acheres_ville_ligne_l_train_1', 'destination') }}.

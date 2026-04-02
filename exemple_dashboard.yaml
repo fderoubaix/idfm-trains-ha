@@ -1,0 +1,66 @@
+# ============================================================
+# Exemple de dashboard Lovelace – IDFM Trains Achères-Ville
+# ============================================================
+# Remplacez "acheres_ville" par le slug réel de votre gare
+# ============================================================
+
+type: vertical-stack
+cards:
+  # ── Titre ──────────────────────────────────────────────────
+  - type: markdown
+    content: >
+      ## 🚉 Achères-Ville
+      *Dernière mise à jour : {{ states.sensor.idfm_acheres_ville.attributes.derniere_mise_a_jour | as_timestamp | timestamp_custom('%H:%M:%S') }}*
+
+  # ── RER A ──────────────────────────────────────────────────
+  - type: markdown
+    content: "### 🔴 RER A"
+  - type: entities
+    entities:
+      - entity: sensor.idfm_acheres_ville_rer_a_train_1
+        name: "Train 1"
+        secondary_info: last-changed
+      - entity: sensor.idfm_acheres_ville_rer_a_train_2
+        name: "Train 2"
+      - entity: sensor.idfm_acheres_ville_rer_a_train_3
+        name: "Train 3"
+
+  # ── Ligne L ────────────────────────────────────────────────
+  - type: markdown
+    content: "### 🟣 Ligne L (Transilien)"
+  - type: entities
+    entities:
+      - entity: sensor.idfm_acheres_ville_ligne_l_train_1
+        name: "Train 1"
+      - entity: sensor.idfm_acheres_ville_ligne_l_train_2
+        name: "Train 2"
+      - entity: sensor.idfm_acheres_ville_ligne_l_train_3
+        name: "Train 3"
+
+---
+# ── Version alternative avec custom:multiple-entity-row ──────
+# (nécessite HACS: multiple-entity-row)
+
+type: entities
+title: "🚉 Achères-Ville – Prochains trains"
+entities:
+  - type: custom:multiple-entity-row
+    entity: sensor.idfm_acheres_ville_rer_a_train_1
+    name: "RER A – Train 1"
+    show_state: true
+    entities:
+      - attribute: destination
+        name: "Vers"
+      - attribute: retard_minutes
+        name: "Retard"
+        unit: min
+  - type: custom:multiple-entity-row
+    entity: sensor.idfm_acheres_ville_ligne_l_train_1
+    name: "Ligne L – Train 1"
+    show_state: true
+    entities:
+      - attribute: destination
+        name: "Vers"
+      - attribute: retard_minutes
+        name: "Retard"
+        unit: min

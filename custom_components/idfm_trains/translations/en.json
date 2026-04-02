@@ -1,0 +1,39 @@
+{
+  "title": "IDFM Trains (Île-de-France Mobilités)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "IDFM Trains Setup",
+        "description": "Get your free API key at {prim_url}\n\nFor Achères-Ville station, the default ZdA ID is pre-filled ({default_stop}).\nFind your stop ID in the IDFM stop referential.",
+        "data": {
+          "api_key": "PRIM API Key",
+          "stop_area_id": "Stop Area ID (ZdA)",
+          "stop_name": "Station display name"
+        }
+      }
+    },
+    "error": {
+      "invalid_api_key": "Invalid or expired API key. Check prim.iledefrance-mobilites.fr",
+      "invalid_stop_area": "Stop area not found. Check the ZdA ID in the IDFM referential.",
+      "cannot_connect": "Cannot reach the PRIM API. Check your internet connection."
+    },
+    "abort": {
+      "already_configured": "This station is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "IDFM Trains Options",
+        "data": {
+          "train_count": "Number of trains to display per line",
+          "update_interval": "Update interval during active window (minutes)",
+          "outside_interval": "Update interval outside active window (minutes)",
+          "time_start": "Window start time (HH:MM)",
+          "time_end": "Window end time (HH:MM)",
+          "lines_filter": "Filter lines (empty = all lines)"
+        }
+      }
+    }
+  }
+}

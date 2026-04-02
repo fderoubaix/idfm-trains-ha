@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+venv/
+
+# macOS
+.DS_Store
+
+# Tests locaux
+test_prim_api_output.txt
+*.zip
+
+# IDE
+.vscode/
+.idea/

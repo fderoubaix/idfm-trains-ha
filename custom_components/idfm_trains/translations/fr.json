@@ -1,0 +1,39 @@
+{
+  "title": "IDFM Trains (Île-de-France Mobilités)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuration IDFM Trains",
+        "description": "Obtenez votre clé API gratuite sur {prim_url}\n\nPour la gare d'Achères-Ville, le ZdA ID par défaut est pré-rempli ({default_stop}).\nTrouvez l'ID de votre arrêt via le référentiel des arrêts IDFM.",
+        "data": {
+          "api_key": "Clé API PRIM",
+          "stop_area_id": "ID Zone d'arrêt (ZdA)",
+          "stop_name": "Nom affiché de la gare"
+        }
+      }
+    },
+    "error": {
+      "invalid_api_key": "Clé API invalide ou expirée. Vérifiez sur prim.iledefrance-mobilites.fr",
+      "invalid_stop_area": "Zone d'arrêt introuvable. Vérifiez l'identifiant ZdA dans le référentiel IDFM.",
+      "cannot_connect": "Impossible de joindre l'API PRIM. Vérifiez votre connexion internet."
+    },
+    "abort": {
+      "already_configured": "Cette gare est déjà configurée."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options IDFM Trains",
+        "data": {
+          "train_count": "Nombre de trains à afficher par ligne",
+          "update_interval": "Intervalle de mise à jour (pendant la plage horaire, en minutes)",
+          "outside_interval": "Intervalle hors plage horaire (en minutes)",
+          "time_start": "Heure de début de surveillance (HH:MM)",
+          "time_end": "Heure de fin de surveillance (HH:MM)",
+          "lines_filter": "Filtrer sur certaines lignes (vide = toutes)"
+        }
+      }
+    }
+  }
+}

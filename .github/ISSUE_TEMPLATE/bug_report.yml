@@ -1,0 +1,57 @@
+name: Bug Report
+description: Signaler un problème avec l'intégration IDFM Trains
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de remplir ce formulaire pour nous aider à reproduire le problème.
+
+  - type: input
+    id: ha_version
+    attributes:
+      label: Version de Home Assistant
+      placeholder: "ex: 2025.4.0"
+    validations:
+      required: true
+
+  - type: input
+    id: integration_version
+    attributes:
+      label: Version de l'intégration
+      placeholder: "ex: 1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: stop_area
+    attributes:
+      label: Zone d'arrêt (ZdA ID)
+      placeholder: "ex: 46647"
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du problème
+      description: Décrivez clairement ce qui se passe.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs Home Assistant
+      description: Copiez les logs depuis Paramètres → Journaux système (filtrer sur "idfm_trains")
+      render: text
+    validations:
+      required: false

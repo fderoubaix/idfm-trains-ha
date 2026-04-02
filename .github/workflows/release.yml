@@ -1,0 +1,39 @@
+---
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Met à jour la version dans manifest.json avec le tag GitHub
+      - name: Update version in manifest.json
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"  # retire le préfixe "v" si présent
+          sed -i "s/\"version\": \".*\"/\"version\": \"${VERSION}\"/" \
+            custom_components/idfm_trains/manifest.json
+          echo "Version set to ${VERSION}"
+
+      # Crée le zip d'installation HACS
+      - name: Create release zip
+        run: |
+          cd custom_components
+          zip -r ../idfm_trains.zip idfm_trains/
+          cd ..
+          echo "Created idfm_trains.zip"
+
+      # Attache le zip à la release GitHub
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: idfm_trains.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,10 @@
+{
+  "name": "IDFM Trains",
+  "category": "integration",
+  "iot_class": "cloud_polling",
+  "homeassistant": "2024.5.0",
+  "documentation": "https://github.com/VOTRE_USERNAME/idfm-trains-ha",
+  "issue_tracker": "https://github.com/VOTRE_USERNAME/idfm-trains-ha/issues",
+  "codeowners": ["@VOTRE_USERNAME"],
+  "render_readme": true
+}
